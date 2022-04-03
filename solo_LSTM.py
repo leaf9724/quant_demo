@@ -62,10 +62,10 @@ def create_dataset(data, days_for_train=5) -> (np.array, np.array):
     # print('data',data)
     dataset_x, dataset_y= [], []
     for i in range(data.shape[0]-days_for_train-1):
-        _x = data[i:(i+days_for_train+1),:-1]
+        _x = data[i:(i+days_for_train),:-1]
         dataset_x.append(_x)
         # print('data[:-1][i+days_for_train]',data[:-1][i+days_for_train])
-        dataset_y.append(data[:,-1:][i+days_for_train])
+        dataset_y.append(data[:,-1:][i+days_for_train-1])
     print('creat_shape', np.array(dataset_x).shape, np.array(dataset_y).shape)
     return (np.array(dataset_x), np.array(dataset_y))
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     t0 = time.time()
     #data_close = ts.get_k_data('000001', start='2019-01-01', index=True)['close']  # 取上证指数的收盘价
     #data_close.to_csv('000001.csv', index=False) #将下载的数据转存为.csv格式保存
-    data_close = pd.read_csv('/home/pc/matrad/leaf/factor/quant_demo/daily_data/data_processed/daily_data/sh.600015.csv') #读取文件
+    data_close = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/sh.600015.csv') #读取文件
     # print(data_close)
     data_close.drop( columns=[ "date","label_month_15%", "label_week_15%", "adjustflag","tradestatus","label_week_7%",  "code"], inplace=True )
     data_close["label_month_2%" ] = np.sign(np.maximum((data_close["lagRet"].rolling(22).sum()).shift(-22) - np.log(1.03), 0) )
