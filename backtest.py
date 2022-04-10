@@ -253,7 +253,6 @@ def BackTest(# backtest_lable =  'label_month_15%',
     account.BackTest()
     df_result = account.result
 
-
     df_result.to_csv('/home/pc/matrad/leaf/factor/strategy/'+backtest_lable+'backtest_metric.csv')
     plt.figure()
     print('account ifo',np.array(account.info))

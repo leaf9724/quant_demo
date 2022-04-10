@@ -253,5 +253,7 @@ my_model = model()
 my_model.label = 'label_week_15%'
 data_x, data_y = my_model.backtest_data_prepare()
 x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
-my_model.tune_param(x_train,y_train)
+my_model.backtest_process()
+my_model.predict_process()
+tune_param(x_train,y_train)
 

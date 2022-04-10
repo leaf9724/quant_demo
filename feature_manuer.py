@@ -127,8 +127,8 @@ class Feature_engine():
             if target == 'renew':
                 data = data.iloc[-600:,:]
             else:
-                data =data_org.iloc[-700:,:]
-            
+                data =data_org.iloc
+                           
             data = self.price_adjust(data)
             data = self.daily_signal(data)
             data = self.talib_overlap(data)
