@@ -15,7 +15,7 @@ class Get_price():
     def catch_price_data(self, code_list,     freq='d'):
         for i in tqdm(code_list):
             rs = bs.query_history_k_data(i, self.daily_price_term, start_date = self.start_dates , frequency = freq, adjustflag="2")
-            print(i)
+            # print(i)
             data_list = []
             while (rs.error_code == '0') & rs.next():
                 data_list.append(rs.get_row_data())
@@ -117,11 +117,15 @@ sz50 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/sz50_stocks.csv')
 hs300 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/hs300_stocks.csv')
 zz500 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/zz500_stocks.csv')
 
+sz50 = sz50['code'].values
+hs300 = hs300['code'].values
+zz500 = zz500['code'].values
+
 bs.login()
 G = Get_price()
-G.catch_price_data(sz50['code'].values)
-G.catch_price_data(sz50['code'].values)
-G.catch_price_data(sz50['code'].values)
+G.catch_price_data(sz50)
+G.catch_price_data(hs300)
+G.catch_price_data(zz500)
 
 # # catch_price_data(sz50, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 # catch_price_data(zz500, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
