@@ -39,8 +39,7 @@ class model():
         self.model_name = model_name
 
 
-    def predict_data_pare(self, today=TODAY):
-        file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dall.csv"
+    def predict_data_pare(self, today=TODAY, file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dall.csv"):
         data = pd.read_csv(file_path)
         df_pred = data[data["date"] == str(today)].copy()
         data.dropna(axis=0, how="any", inplace=True)
@@ -49,8 +48,7 @@ class model():
         self.data_x_columns = data_x.columns
         return data_x.values, data_y.values.astype(int), df_pred
 
-    def backtest_data_prepare(self):
-        file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dtrain.csv"
+    def backtest_data_prepare(self, file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dtrain.csv"):
         data = pd.read_csv(file_path)
         data_y = data[self.label]
         data_x = data.drop(columns=self.object_and_label).copy()

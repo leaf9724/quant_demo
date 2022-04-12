@@ -3,6 +3,7 @@ import numpy as np
 import baostock as bs
 import datetime
 from tqdm import tqdm
+from multiprocessing import Process, Pool 
 
 class Get_price():
     def __init__(self,):
@@ -72,12 +73,12 @@ class Get_price():
             print(result_balance)
             result_balance.to_csv(data_path+'/'+i+".csv", encoding="gbk", index=False)
 
-    def catch_cash_data(self,code_list,data_path="/home/pc/matrad/leaf/factor/daily_data/cash_data"):
+    def catch_cash_flow_data(self,code_list,data_path="/home/pc/matrad/leaf/factor/daily_data/cash_data"):
         for i in tqdm(code_list):
             cash_list = []
             for year_i in range(2005,2022):
                 for j in range(1,5):
-                    rs_cash = bs.query_cash_data(code=i, year=year_i, quarter=j)
+                    rs_cash = bs.query_cash_flow_data(code=i, year=year_i, quarter=j)
                     while (rs_cash.error_code == '0') & rs_cash.next():
                         cash_list.append(rs_cash.get_row_data())
                     result_cash = pd.DataFrame(cash_list, columns=rs_cash.fields)
@@ -113,6 +114,7 @@ class Get_price():
         result = pd.DataFrame(data_list, columns=rs.fields)
         result.to_csv("/home/pc/matrad/leaf/factor/daily_data/money_supply_data_month/money_supply_data_month.csv", encoding="gbk", index=False)
 
+G = Get_price()
 sz50 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/sz50_stocks.csv')
 hs300 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/hs300_stocks.csv')
 zz500 = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/zz500_stocks.csv')
@@ -121,24 +123,37 @@ sz50 = sz50['code'].values
 hs300 = hs300['code'].values
 zz500 = zz500['code'].values
 
-bs.login()
-G = Get_price()
-G.catch_price_data(sz50)
-G.catch_price_data(hs300)
-G.catch_price_data(zz500)
+def bs_get_price(codes):
+    bs.login()
+    G.catch_price_data(codes)
+    # G.catch_price_data(hs300)
+    # G.catch_price_data(zz500)
+    bs.logout()
+
+# if __name__=='__main__':
+#     print('Parent process %s.' % os.getpid())
+#     p = Pool(6)    
+#     p.apply_async(bs_get_price, args=(sz50,))
+#     p.apply_async(bs_get_price, args=(hs300,))
+#     p.apply_async(bs_get_price, args=(zz500,))
+#     print('Waiting for all subprocesses done...')
+#     p.close()
+#     p.join()
+#     print('All subprocesses done.')
 
 # # catch_price_data(sz50, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 # catch_price_data(zz500, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 # catch_price_data(hs300, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 
+bs.login()
 
-G.catch_dupont_data(sz50)
-G.catch_dupont_data(zz500)
-G.catch_dupont_data(hs300)
+# G.catch_dupont_data(sz50)
+# G.catch_dupont_data(zz500)
+# G.catch_dupont_data(hs300)
 
-G.catch_cash_data(sz50)
-G.catch_cash_data(zz500)
-G.catch_cash_data(hs300)
+G.catch_cash_flow_data(sz50)
+G.catch_cash_flow_data(zz500)
+G.catch_cash_flow_data(hs300)
 
 G.catch_balance_data(sz50)
 G.catch_balance_data(zz500)
@@ -161,7 +176,7 @@ G.money_supply_data_month()
 G.shibor_data()
 
 
-# #### 登出系统 ####
+#### 登出系统 ####
 bs.logout()
 
 

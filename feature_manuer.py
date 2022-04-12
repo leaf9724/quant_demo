@@ -127,7 +127,7 @@ class Feature_engine():
             if target == 'renew':
                 data = data.iloc[-600:,:]
             else:
-                data =data_org.iloc
+                data =data_org
                            
             data = self.price_adjust(data)
             data = self.daily_signal(data)
@@ -136,7 +136,7 @@ class Feature_engine():
             data = self.talib_volume(data)
             data = self.talib_cycle(data)
             data = self.data_standard(data)
-            data = self.label_make(data)
+            data = self.label_make(data)#bug
 
             if target == 'renew':
                 data = pd.concat([data_org,data.iloc[-1,:]],axis=0)
