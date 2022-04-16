@@ -11,6 +11,9 @@ class Get_price():
         self.daily_price_term = 'date,code,open,high,low,close,preclose,volume,amount,turn,tradestatus,pctChg,isST,peTTM,pbMRQ,psTTM,adjustflag,pcfNcfTTM' 
         self.daily_data_path = "/home/pc/matrad/leaf/factor/daily_data/price_data"
         self.start_dates = '2005-01-01'
+        self.today =str(datetime.date.today()) 
+        self.today_month = self.today[:7]
+        print(self.today_month)
         pass
 
     def catch_price_data(self, code_list,     freq='d'):
@@ -99,15 +102,15 @@ class Get_price():
 
 
     def shibor_data(self,start_dates='2005-01-01' ):
-        rs = bs.query_shibor_data(start_date=start_dates ,end_date = today)
+        rs = bs.query_shibor_data(start_date=start_dates ,end_date = self.today)
         data_list = []
         while (rs.error_code == '0') & rs.next():
             data_list.append(rs.get_row_data())
         result = pd.DataFrame(data_list, columns=rs.fields)
         result.to_csv("/home/pc/matrad/leaf/factor/daily_data/shibor_data/shibor_data.csv", encoding="gbk", index=False) 
 
-    def money_supply_data_month(self, start_dates='2005-01-01', ):
-        rs = bs.query_money_supply_data_month(start_date=start_dates,end_date = today)
+    def money_supply_data_month(self, start_dates='2005-01', ):
+        rs = bs.query_money_supply_data_month(start_date=start_dates,end_date = self.today_month)
         data_list = []
         while (rs.error_code == '0') & rs.next():
             data_list.append(rs.get_row_data())
@@ -147,31 +150,31 @@ def bs_get_price(codes):
 
 bs.login()
 
-# G.catch_dupont_data(sz50)
-# G.catch_dupont_data(zz500)
-# G.catch_dupont_data(hs300)
+# # G.catch_dupont_data(sz50)
+# # G.catch_dupont_data(zz500)
+# # G.catch_dupont_data(hs300)
 
-G.catch_cash_flow_data(sz50)
-G.catch_cash_flow_data(zz500)
-G.catch_cash_flow_data(hs300)
+# G.catch_cash_flow_data(sz50)
+# G.catch_cash_flow_data(zz500)
+# G.catch_cash_flow_data(hs300)
 
-G.catch_balance_data(sz50)
-G.catch_balance_data(zz500)
-G.catch_balance_data(hs300)
+# G.catch_balance_data(sz50)
+# G.catch_balance_data(zz500)
+# G.catch_balance_data(hs300)
 
-G.catch_growth_data(sz50)
-G.catch_growth_data(zz500)
-G.catch_growth_data(hs300)
+# G.catch_growth_data(sz50)
+# G.catch_growth_data(zz500)
+# G.catch_growth_data(hs300)
 
-G.catch_operation_data(sz50)
-G.catch_operation_data(zz500)
-G.catch_operation_data(hs300)
+# G.catch_operation_data(sz50)
+# G.catch_operation_data(zz500)
+# G.catch_operation_data(hs300)
 
-G.catch_profit_data(sz50)
-G.catch_profit_data(zz500)
-G.catch_profit_data(hs300)
+# G.catch_profit_data(sz50)
+# G.catch_profit_data(zz500)
+# G.catch_profit_data(hs300)
 
-G.money_supply_data_month()
+# G.money_supply_data_month()
 
 G.shibor_data()
 

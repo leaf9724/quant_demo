@@ -5,6 +5,7 @@ import talib as ta
 import warnings
 warnings.filterwarnings('ignore')
 from tqdm import tqdm
+from multiprocessing import Pool
 
 
 class Feature_engine():
@@ -53,6 +54,61 @@ class Feature_engine():
             data.drop(columns=['roll_min','roll_max'], inplace=True)
 
         return data
+
+    def momentum(self, data):
+        for i in [5,10,20,30,60,90,120,150]:
+            data['bbl_upperband'+str(i)], data['bbl_middleband'], data['bbl_lowerband'] = ta.BBANDS(data['close'], timeperiod=i, nbdevup=2, nbdevdn=2, matype=0)
+
+        for i in range(7,71,7):
+            data['ADX'+str(i)] = ta.ADX(data['high'], data['low'], data['close'], timeperiod=i)
+
+        for i in range(77,260,21):
+            data['ADX'+str(i)] = ta.ADX(data['high'], data['low'], data['close'], timeperiod=i)        
+
+        for i in range(1,11):
+            data['APO'+str(i)] = ta.APO(data['close'], fastperiod=12*i, slowperiod=26*i, matype=0)
+            data['aroondown'+str(i)], data['aroonup'+str(i)] = ta.AROON(data['high'], data['low'], timeperiod=14*i)
+            data['AROONOSC'+str(i)] = ta.AROONOSC(data['high'], data['low'], timeperiod=14*i)
+            data['CCI'+str(i)] = ta.CCI(data['high'], data['low'], data['close'], timeperiod=14*i)
+            data['CMO'+str(i)] = ta.CMO(data['close'], timeperiod=14*i)
+            data['DX'+str(i)] = ta.DX(data['high'], data['low'], data['close'], timeperiod=14*i)
+            data['MIF'+str(i)] = ta.MFI(data['high'], data['low'], data['close'], data['volume'], timeperiod=14*i)
+            data['MINUS_DI'+str(i)] = ta.MINUS_DI(data['high'], data['low'], data['close'], timeperiod=14*i)
+            data['MINUS_DM'+str(i)] = ta.MINUS_DM(data['high'], data['low'], timeperiod=14*i)
+            data['PLUS_DI'+str(i)] = ta.PLUS_DI(data['high'], data['low'], data['close'], timeperiod=14*i)
+            data['PLUS_DM'+str(i)] = ta.PLUS_DM(data['high'], data['low'], timeperiod=14*i)
+            data['RSI'+str(i)] = ta.RSI(data['close'], timeperiod=14*i)
+            data['WILLR'+str(i)] = ta.WILLR(data['high'], data['low'], data['close'], timeperiod=14*i)
+            data['ADXR'+str(i)] = ta.ADXR(data['high'], data['low'], data['close'], timeperiod=14*i)
+
+
+        data['BOP'] = ta.BOP(data['open'], data['high'], data['low'], data['close'])
+        data['macd'],data['macdsignal'], data['macdhist'] = ta.MACD(data['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        data['macd_ext'],data['macdsignal_ext'], data['macdhist_ext'] = ta.MACDEXT(data['close'], fastperiod=12, fastmatype=0, slowperiod=26, slowmatype=0, signalperiod=9, signalmatype=0)
+        data['macd_fix'],data['macdsignal_fix'], data['macdhist_fix'] = ta.MACDFIX(data['close'], signalperiod=9)
+        data['PPO'] = ta.PPO(data['close'], fastperiod=12, slowperiod=26, matype=0)
+
+        for i in range(10,201,10):
+            data['ROC'+str(i)] = ta.ROC(data['close'], timeperiod=10)
+
+            data['ROCP'+str(i)] = ta.ROCP(data['close'], timeperiod=10)
+
+            data['ROCR'+str(i)] = ta.ROCR(data['close'], timeperiod=10)
+
+            data['ROCR100'+str(i)] = ta.ROCR100(data['close'], timeperiod=10)
+
+
+
+        data['slowk'], data['slowd'] = ta.STOCH(data['high'], data['low'], data['close'], fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+
+        data['STOCHFfastk'], data['STOCHFfastd'] = ta.STOCHF(data['high'], data['low'], data['close'], fastk_period=5, fastd_period=3, fastd_matype=0)
+
+        data['STOCHRSIfastk'], data['STOCHRSIfastd'] = ta.STOCHRSI(data['close'], timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0)
+
+        data['TRIX'] = ta.TRIX(data['close'], timeperiod=30)
+
+        data['ULTOSC'] = ta.ULTOSC(data['high'], data['low'], data['close'], timeperiod1=7, timeperiod2=14, timeperiod3=28)
+
 
     def talib_overlap(self, data):
         data['BBAND_upperband'], data['BBAND_middleband'], data['BBAND_lowerband'] = ta.BBANDS(data['close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
@@ -118,8 +174,8 @@ class Feature_engine():
         lable_data["label_month_15%" ] = np.sign(np.maximum((data["lagRet"].rolling(20).sum()).shift(-20) - np.log(1.15), 0) )
         lable_data["label_week_7%" ] = np.sign(np.maximum((data["lagRet"].rolling(5).sum()).shift(-5) - np.log(1.07), 0) )
         lable_data["label_week_15%" ] = np.sign(np.maximum((data["lagRet"].rolling(5).sum()).shift(-5) - np.log(1.15), 0) )
-        lable_data["label_month_%2" ] = np.sign(np.maximum((data["lagRet"].rolling(20).sum()).shift(-20) - np.log(1.02), 0) )
-        print(lable_data.head(30))
+        lable_data["label_month_2%" ] = np.sign(np.maximum((data["lagRet"].rolling(20).sum()).shift(-20) - np.log(1.02), 0) )
+        # print(lable_data.tail(30))
         return lable_data
 
     def forward(self, target='renew'):
@@ -145,13 +201,12 @@ class Feature_engine():
 
             if target == 'renew':
                 data = pd.concat([data_org,data.iloc[-1,:]],axis=0)
+            data.drop(columns=["isST",'preclose', "adjustflag", "tradestatus"], inplace=True)
             data.to_csv(self.processed_path + "/" + file, index=False)
             self.data_all=pd.concat([data,self.data_all],axis=0)
             self.data_train= pd.concat([data.iloc[:-150,:],self.data_train],axis=0)
             self.data_test = pd.concat([data.iloc[-150:,:],self.data_test],axis=0)
 
-        self.data_all = data_all[(data_all.isST != 1)]  # &(dt.c1!=56)]
-        self.data_all.drop(columns=["isST",'preclose'], inplace=True)
         self.data_all.to_csv(self.feature_path + "/" + "feature_dall.csv", index=False)
         self.data_train.to_csv(self.feature_path + "/" + "feature_dtrain.csv", index=False)
         self.data_test.to_csv(self.feature_path + "/" + "feature_dtest.csv", index=False)
@@ -159,4 +214,9 @@ class Feature_engine():
 
             
 file_manuer = Feature_engine()
-file_manuer.forward('all')
+# file_manuer.forward('all')
+
+if __name__ == '__main__':
+    P = Pool(processes=9)
+    P.map(func=file_manuer.forward, iterable=('all',))
+
