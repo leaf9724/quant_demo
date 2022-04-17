@@ -29,7 +29,7 @@ YESTERDAY = TODAY - oneday
 
 class model():
     def __init__(self,  model_name = 'lgb',
-                 object_and_label=["date", "label_month_%2", "label_month_15%", 
+                 object_and_label=["date", "label_month_2%", "label_month_15%", 
                                    "label_week_7%", "label_week_15%", "code"]
                  ):
         self.label = ' '
@@ -253,5 +253,5 @@ data_x, data_y = my_model.backtest_data_prepare()
 x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
 # my_model.backtest_process()
 # my_model.predict_process()
-tune_param(x_train,y_train)
+lgb_tune_param(x_train,y_train)
 
