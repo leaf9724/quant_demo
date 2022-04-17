@@ -59,26 +59,26 @@ def train_fun(file_list_train,root):
 
 
 # for test
-def model_test(file_list_test, threshold=0.6, evaul_plot=True):
-    model = model.eval() # 转换成测试模式
-    model.load_state_dict(torch.load('model_params.pkl'))  # 读取参数
+def model_test(file_list_test, threshold=0.5, evaul_plot=True):
+    model = LSTM_Regression(input_size=CD.feature_num, hidden_size=128, output_size=1, num_layers=2,days_for_train=CD.days_for_train).to(device) # 导入模型并设置模型的参数输入输出层、隐藏层等
+    # model = model.eval() # 转换成测试模式
+    model.load_state_dict(torch.load('/home/pc/matrad/leaf/factor/quant_demo/LSTM_demo/model_params.pkl'))  # 读取参数
     df_all = pd.DataFrame()
     for file in file_list_test:
-        root_file = os.join(root,file)
+        root_file = os.path.join(root,file)
         data_close = pd.read_csv(root_file)
-        # if (np.isna(data_close.values).sum()>=data_close.shape[0]).any():
-        #     continue
         test_x, label, date_and_code = CD.data_standard(data_close)
+
         test_x, label = CD.feature_reshape(test_x, label )
-        pred_test = model(test_x.to(torch.float32)) # 全量训练集
-        # print(test_x.shape,pred_test.shape)
-        # print(len(pred_test),len(label))
+        pred_test = (model(test_x.to(torch.float32))).detach().cpu().numpy() # 全量训练集
 
         assert len(pred_test) == len(label)
-        pred_prob = ((pred_test.detach().numpy()).reshape((-1,1)))
-        pred_signal = np.sign(np.maximum(pred_test-threshold,0))
+        pred_prob = pred_test.reshape(-1,1)
 
+        pred_signal = np.sign(np.maximum(pred_test-threshold,0))
+        label = label.detach().cpu().numpy()
         df = pd.DataFrame()
+
         df['label'] = label.squeeze(1)
         df['pred_prob'] = pred_prob.squeeze(1)
         df['pred_signal'] = pred_signal.squeeze(1)
@@ -87,8 +87,9 @@ def model_test(file_list_test, threshold=0.6, evaul_plot=True):
 
 
         if evaul_plot:
-            label_p = df[df['label']==1].values
-            pred_sig_p = df[df['pred_signal']==1].values
+            label_p = df[df['label']==1]['label'].values
+            pred_sig_p = df[df['pred_signal']==1]['pred_signal'].values
+            print((label_p.shape, pred_sig_p))
             accuracy = (label == pred_signal).sum()/len(label)
             perssion = (label_p == pred_sig_p).sum()/len(pred_sig_p)
             recall = (label_p == pred_sig_p).sum()/len(label_p)
@@ -111,5 +112,5 @@ file_list.sort(key=lambda x:int(x[3:-4]))
 train_file_list = file_list[:200]
 test_file_list = file_list[200:300]
 
-train_fun(train_file_list,root)
+# train_fun(train_file_list,root)
 model_test(test_file_list)

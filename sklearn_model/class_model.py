@@ -198,9 +198,9 @@ def lgb_tune_param( x_train, y_train):
     lgb = LGBMClassifier(learning_rate=0.02, n_estimators=100, max_depth=5, min_child_weight=1, 
                   subsample=0.8, colsample_bytree=0.8, scale_pos_weight=1, seed=2022)
 
-
+    scoring = {'AUC': 'roc_auc', 'precision': 'precision'}
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params1, 
-                            scoring=['precision','roc_auc'], cv=5, 
+                            scoring=scoring, cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -211,7 +211,7 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params2, 
-                            scoring=['precision','roc_auc'], cv=5, 
+                            scoring=scoring, cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -222,7 +222,7 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params3, 
-                            scoring=['precision','roc_auc'], cv=5, 
+                            scoring=scoring, cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -233,14 +233,14 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params4, 
-                            scoring=['precision','roc_auc'], cv=5, 
+                            scoring=scoring, cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params5, 
-                            scoring=['precision','roc_auc'], cv=5, 
+                            scoring=scoring, cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)

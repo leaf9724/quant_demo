@@ -61,7 +61,7 @@ class Creat_LSTM_data():
         pass
 
         #单只股票原始数据制作
-    def data_standard(self,data, lable = "label_week_15%", test_size = 0):
+    def data_standard(self,data, lable = "label_month_2%", test_size = 0):
         '''
         data: DataFrame
         '''
