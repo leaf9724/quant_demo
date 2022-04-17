@@ -29,7 +29,7 @@ YESTERDAY = TODAY - oneday
 
 class model():
     def __init__(self,  model_name = 'lgb',
-                 object_and_label=["date", "label_month_%2", "label_month_15%", "adjustflag", "tradestatus",
+                 object_and_label=["date", "label_month_%2", "label_month_15%", 
                                    "label_week_7%", "label_week_15%", "code"]
                  ):
         self.label = ' '
@@ -71,7 +71,7 @@ class model():
             "num_leaves": 20,  # 叶子节点数
             "n_estimators": 500,
             "objective": "binary",
-            "metric": "f1",
+            "metric": {'average_precision','binary_logloss'},
             "learning_rate": 0.2,
             "feature_fraction": 0.8,  # 小于 1.0, LightGBM 将会在每次迭代中随机选择部分特征.
             "bagging_fraction": 1,  # 类似于 feature_fraction, 但是它将在不进行重采样的情况下随机选择部分数据
@@ -200,8 +200,8 @@ def lgb_tune_param( x_train, y_train):
 
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params1, 
-                            scoring='f1', cv=5, 
-                            n_jobs=-1)
+                            scoring=['precision','roc_auc'], cv=5, 
+                            n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
@@ -211,8 +211,8 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params2, 
-                            scoring='f1', cv=5, 
-                            n_jobs=-1)
+                            scoring=['precision','roc_auc'], cv=5, 
+                            n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
@@ -222,8 +222,8 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params3, 
-                            scoring='f1', cv=5, 
-                            n_jobs=-1)
+                            scoring=['precision','roc_auc'], cv=5, 
+                            n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
@@ -233,15 +233,15 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params4, 
-                            scoring='f1', cv=5, 
-                            n_jobs=-1)
+                            scoring=['precision','roc_auc'], cv=5, 
+                            n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params5, 
-                            scoring='f1', cv=5, 
-                            n_jobs=-1)
+                            scoring=['precision','roc_auc'], cv=5, 
+                            n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
@@ -251,7 +251,7 @@ my_model = model()
 my_model.label = 'label_week_15%'
 data_x, data_y = my_model.backtest_data_prepare()
 x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
-my_model.backtest_process()
-my_model.predict_process()
+# my_model.backtest_process()
+# my_model.predict_process()
 tune_param(x_train,y_train)
 

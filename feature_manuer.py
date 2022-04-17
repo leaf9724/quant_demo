@@ -128,8 +128,13 @@ class Feature_engine():
 
         # data['MAMA_mama'],data['MAMA_fama'] = ta.MAMA(data['close'], fastlimit=1, slowlimit=1)
         # data['MAVP'] = ta.MAVP(data['close'], periods, minperiod=2, maxperiod=30, matype=0)
-        data['SAR'] = ta.SAR(data['high'], data['low'], acceleration=0, maximum=0)
-        data['SAREXT'] = ta.SAREXT(data['high'], data['low'], startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0)
+        data['SAR'] = ta.SAR(data['high'], data['low'], acceleration=0.02, maximum=0.2)
+        if data['SAR'].isnull().all():
+            print('data[SAR]',data['SAR'],data.shape)#做形状过滤
+        data['SAREXT'] = ta.SAREXT(data['high'], data['low'], startvalue=0, offsetonreverse=0, accelerationinitlong=0.02, accelerationlong=0.02, accelerationmaxlong=0.20, accelerationinitshort=0.02, accelerationshort=0.02, accelerationmaxshort=0.20,)
+        if data['SAR'].isnull().all():
+            print('data[SARREXT]',data['SARREXT'],data.shape)#做形状过滤
+        # print('data[SAR]',data['SAREXT'].values.shape)
         data['T3'] = ta.T3(data['close'], timeperiod=5, vfactor=0)
         data['HT_TRENDLINE'] = ta.HT_TRENDLINE(data['close'])
         return data
@@ -193,7 +198,11 @@ class Feature_engine():
             data = self.talib_volatity(data)
             data = self.talib_volume(data)
             data = self.talib_cycle(data)
-            class_lable_data = self.class_label_make(data)  # bug
+            data_select_num = data.select_dtypes(include='number')
+            for (columnName, columnData) in data_select_num.iteritems(): 
+                if np.isnan(columnData.values).all():
+                    continue
+            class_lable_data = self.class_label_make(data) 
             data = self.data_standard(data)
             data = pd.concat([data,class_lable_data], axis=1)
 

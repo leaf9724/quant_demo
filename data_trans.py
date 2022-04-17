@@ -9,59 +9,107 @@ import pickle
 import pandas as pd
 import numpy as np
 from PIL import Image
-from fg_base import dataloader
+import sys
+sys.path.append('/home/pc/matrad/leaf/factor/quant_demo')
+from LSTM_demo.solo_LSTM import Creat_LSTM_data
 
 
-class Data_to_Picture():
-  def __init__(self):
-    pass
+class Data_to_Picture(Creat_LSTM_data):
 
-  def grey_picture(self, data):#灰度图
-    result = np.array(data)
-    #将长为L的时间序列转成m*n的矩阵， L = m*n
-    result = result.reshape((10,-1))
-    #矩阵归一化,调用Image
-    result = (result - np.min(result)) / (np.max(result) - np.min(result))
-    im = Image.fromarray(result*255.0)
-    return im.convert('L')
+
+  def grey_picture(self, data,save_dic, root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/greay_picture'):#灰度图
+    data = (data - np.min(data)) / (np.max(data) - np.min(data))
+    im = Image.fromarray(data*255.0)
+    im.convert('L').save(root+"/grey{0}_{1}_{2}_{3}.jpg".format(save_dic['name'],save_dic['inx'],save_dic['date_code'],save_dic['label']),format = 'jpeg')
+
     # im.convert('L').save("1.jpg",format = 'jpeg')
 
-  def recurrent_picture(self, X):#递归图
+  def recurrent_picture(self, X,root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/picture'):#递归图
     rp = RecurrencePlot(threshold='point', percentage=20)
     X_rp = rp.fit_transform(X)
+    plt.figure(figsize=(5, 5))
+    plt.imshow(X_rp[0], cmap='binary', origin='lower')
+    plt.tight_layout()
+    plt.savefig(root+"/rp{0}_{1}_{2}_{3}.jpg".format(j,i))
+
     return X_rp
 
-  def MTF(self, X):#马尔科夫迁变场
+  def MTF(self, X,root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/picture'):#马尔科夫迁变场
     mtf = MarkovTransitionField()
     X_mtf = mtf.fit_transform(X)
-    return X_mtf
+    plt.figure(figsize=(5, 5))
+    plt.imshow(X_mtf[0], cmap='rainbow', origin='lower')
+    plt.colorbar(fraction=0.0457, pad=0.04)
+    plt.tight_layout()
+    plt.savefig(root+"/mtf.jpg")
 
-  def GAF(self, X, methoreds):#格拉米角场
+
+  def GAF(self, X, methoreds='gasf',root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/picture'):#格拉米角场
     if methoreds == 'gasf':
       gasf = GramianAngularField(method='summation')
-      X_gasf = gasf.fit_transform(X)
-      return X_gasf
+      picture = gasf.fit_transform(X)
+
     if methoreds == 'gadf':
       gadf = GramianAngularField( method='difference')
-      X_gadf = gadf.fit_transform(X)
-      return X_gadf
+      picture = gadf.fit_transform(X)
+
+    plt.imshow(picture[0], cmap='rainbow', origin='lower')
+    plt.tight_layout()
+    plt.savefig(root+"/gaf.jpg")
 
 
-  def visualable(self, x,j,i, name='test'):
+
+  def visualable(self, x, name='test'):
     plt.figure(dpi=100)
     plt.imshow(x)# 这里要取0，因为只有一个样本
     plt.tight_layout()
-    plt.savefig("picture/"+name+"{0}_{1}.png".format(j,i))# save the picture
+    plt.savefig("picture.png")
+    # plt.savefig("picture/"+name+"{0}_{1}.png".format(j,i))# save the picture
     plt.show()
 
 
-  def process_data(self, data):
-    data_mean = np.nanmean(data)
-    a = pd.DataFrame(data).fillna(data_mean)
-    # a.shape # （71，） 这里是把71个数取出来，转换成图
-    tmp = a.values
-    # tmp = tmp.reshape(1, -1)
-    return tmp
+  def grey_process(self,dimen = 1):
+    data = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/sh.600031.csv')
+    if dimen == 1:
+      train_x, train_y, date_and_code = super().data_standard(data)
+      shape = train_x.shape    
+      for i in range(shape[0]):
+        if (np.sqrt(shape[1]) % 1) == 0 :
+          temp = temp.reshape(int(np.sqrt(shape[1])),int(np.sqrt(shape[1]))+1)
+        try:
+          temp = temp.reshape(int(np.sqrt(shape[1])),int(np.sqrt(shape[1]))+1)
+        except:
+          temp = np.append(train_x[i,:], 0)
+          temp = temp.reshape(int(np.sqrt(shape[1])),int(np.sqrt(shape[1]))+1)
+        dic_save={'name':'sh.600031','inx':str(i),'label':str(train_y[i]),'date_code':str(date_and_code.values[i,:])}
+        self.grey_picture(temp,dic_save)
+
+    if dimen != 1:
+      train_x, train_y, date_and_code = super().data_standard(data)
+      train_x, train_y = super().create_multiday_dataset(train_x, train_y)
+      shape = train_x.shape    
+      for i in range(shape[0]):
+        temp = train_x[i,:,:]
+        self.grey_picture(temp,name= 'sh.600031',inx=str(i))
+
+
+
+
+  # def process_data(self,):
+  #   data_close = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/sh.600031.csv')
+  #   train_x, train_y, date_and_code = super().data_standard(data_close)
+  #   print(train_x[500,:].shape)
+  #   train_x0 = np.append(train_x[500,:], 0)
+  #   train_x0 = train_x0.reshape(16,17)
+  #   self.grey_picture(train_x0)
+  #   self.recurrent_picture(train_x[495:500,:])
+  #   self.MTF(train_x[495:500,:])
+  #   self.GAF(train_x[495:500,:])
+  #   # self.visualable(grey1)
+  #   print(train_x0.shape)
+
+D2P = Data_to_Picture()
+D2P.grey_process()
 
 
 
