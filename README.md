@@ -19,6 +19,5 @@ Feature_engine中label_make函数可以依据需要的目标动态重写。
 回测文件
 可对class_model生成的待回测文件进行回测。依据不同的回测任务与下单策略，需要进行调整。
 
-## solo_LSTM 
-用LSTM模型对单只股票进行序列预测。
+
 

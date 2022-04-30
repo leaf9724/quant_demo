@@ -14,14 +14,14 @@ class AlexNet(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=1),                  # output[48, 27, 27] kernel_num为原论文一半
             nn.Conv2d(1, 1, kernel_size=3, padding=2),           # output[128, 27, 27]
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),                  # output[128, 13, 13]
-            nn.Conv2d(128, 192, kernel_size=3, padding=1),          # output[192, 13, 13]
+            nn.MaxPool2d(kernel_size=2, stride=1),                  # output[128, 13, 13]
+            nn.Conv2d(1, 1, kernel_size=2, padding=1),          # output[192, 13, 13]
             nn.ReLU(inplace=True),
-            nn.Conv2d(192, 192, kernel_size=3, padding=1),          # output[192, 13, 13]
+            nn.Conv2d(1, 1, kernel_size=2, padding=1),          # output[192, 13, 13]
             nn.ReLU(inplace=True),
-            nn.Conv2d(192, 128, kernel_size=3, padding=1),          # output[128, 13, 13]
+            nn.Conv2d(1, 1, kernel_size=3, padding=1),          # output[128, 13, 13]
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),                  # output[128, 6, 6]
+            nn.MaxPool2d(kernel_size=2, stride=1),                  # output[128, 6, 6]
         )
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.3),

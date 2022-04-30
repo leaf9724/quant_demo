@@ -17,7 +17,7 @@ from LSTM_demo.solo_LSTM import Creat_LSTM_data
 class Data_to_Picture(Creat_LSTM_data):
 
 
-  def grey_picture(self, data,save_dic, root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/greay_picture'):#灰度图
+  def grey_picture(self, data,save_dic, root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/grey_vaild'):#灰度图
     data = (data - np.min(data)) / (np.max(data) - np.min(data))
     im = Image.fromarray(data*255.0)
     im.convert('L').save(root+"/grey{0}_{1}_{2}_{3}.jpg".format(save_dic['name'],save_dic['inx'],save_dic['date_code'],save_dic['label']),format = 'jpeg')
@@ -69,7 +69,7 @@ class Data_to_Picture(Creat_LSTM_data):
 
 
   def grey_process(self,dimen = 1):
-    data = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/sh.600031.csv')
+    data = pd.read_csv('/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/sh.600036.csv')
     if dimen == 1:
       train_x, train_y, date_and_code = super().data_standard(data)
       shape = train_x.shape    

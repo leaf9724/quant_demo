@@ -4,6 +4,7 @@ import baostock as bs
 import datetime
 from tqdm import tqdm
 from multiprocessing import Process, Pool 
+import os 
 
 class Get_price():
     def __init__(self,):
@@ -133,22 +134,31 @@ def bs_get_price(codes):
     # G.catch_price_data(zz500)
     bs.logout()
 
-# if __name__=='__main__':
-#     print('Parent process %s.' % os.getpid())
-#     p = Pool(6)    
-#     p.apply_async(bs_get_price, args=(sz50,))
-#     p.apply_async(bs_get_price, args=(hs300,))
-#     p.apply_async(bs_get_price, args=(zz500,))
+if __name__=='__main__':
+    bs.login()
+    G.catch_price_data(sz50)
+    G.catch_price_data(hs300)
+    G.catch_price_data(zz500)
+    bs.logout()
+#     print('Parent process %s.' % os.getpid())  
+#     p1=Process(target=bs_get_price, args=(sz50,))
+#     p2=Process(target=bs_get_price, args=(hs300,))
+#     p3=Process(target=bs_get_price, args=(zz500,))
 #     print('Waiting for all subprocesses done...')
-#     p.close()
-#     p.join()
+#     p1.start()
+#     p2.start()
+#     p3.start()
+#     p1.join() 
+#     p2.join()
+#     p3.join() 
+
 #     print('All subprocesses done.')
 
 # # catch_price_data(sz50, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 # catch_price_data(zz500, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 # catch_price_data(hs300, terms='date,code,open,high,low,close,volume,amount,adjustflag,turn,pctChg',freq='m',data_path= '/home/pc/matrad/leaf/factor/month_data/price_data')
 
-bs.login()
+# bs.login()
 
 # # G.catch_dupont_data(sz50)
 # # G.catch_dupont_data(zz500)
@@ -176,11 +186,11 @@ bs.login()
 
 # G.money_supply_data_month()
 
-G.shibor_data()
+# G.shibor_data()
 
 
 #### 登出系统 ####
-bs.logout()
+# bs.logout()
 
 
 

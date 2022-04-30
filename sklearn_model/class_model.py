@@ -39,7 +39,7 @@ class model():
         self.model_name = model_name
 
 
-    def predict_data_pare(self, today=TODAY, file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dall.csv"):
+    def predict_data_pare(self, today=YESTERDAY, file_path = "/home/pc/matrad/leaf/factor/daily_data/feature_dall.csv"):
         data = pd.read_csv(file_path)
         df_pred = data[data["date"] == str(today)].copy()
         data.dropna(axis=0, how="any", inplace=True)
@@ -66,7 +66,8 @@ class model():
         lgb_eval = lightgbm.Dataset(x_test, label=y_test, reference=lgb_train)
         parameters = {
             "task": "train",
-            "max_depth": 15,
+            "max_depth": 10,
+            "min_child_weight": 5,
             "boosting_type": "gbdt",
             "num_leaves": 20,  # 叶子节点数
             "n_estimators": 500,
@@ -91,7 +92,7 @@ class model():
             lgb_train,
             valid_sets=[lgb_train, lgb_eval],
             num_boost_round=500,  # 提升迭代的次数
-            early_stopping_rounds=10,
+            early_stopping_rounds=50,
             evals_result=evals_result,
             verbose_eval=10,
         )
@@ -200,7 +201,7 @@ def lgb_tune_param( x_train, y_train):
 
     scoring = {'AUC': 'roc_auc', 'precision': 'precision'}
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params1, 
-                            scoring=scoring, cv=5, 
+                            scoring=scoring, refit='AUC', cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -211,7 +212,7 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params2, 
-                            scoring=scoring, cv=5, 
+                            scoring=scoring, refit='AUC', cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -222,7 +223,7 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params3, 
-                            scoring=scoring, cv=5, 
+                            scoring=scoring, refit='AUC', cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -233,14 +234,14 @@ def lgb_tune_param( x_train, y_train):
     '''
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params4, 
-                            scoring=scoring, cv=5, 
+                            scoring=scoring, refit='AUC', cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
     print('the best params are:', lgb_grid.best_params_)
 
     lgb_grid = GridSearchCV(estimator=lgb, param_grid=lgb_params5, 
-                            scoring=scoring, cv=5, 
+                            scoring=scoring, refit='AUC', cv=5, 
                             n_jobs=9)
     lgb_grid.fit(x_train, y_train)
     print('the best scores are:', lgb_grid.best_score_)
@@ -251,7 +252,8 @@ my_model = model()
 my_model.label = 'label_week_15%'
 data_x, data_y = my_model.backtest_data_prepare()
 x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
-# my_model.backtest_process()
-# my_model.predict_process()
+print(x_train.shape)
+my_model.backtest_process()
+my_model.predict_process()
 lgb_tune_param(x_train,y_train)
 
