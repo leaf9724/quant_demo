@@ -1,3 +1,5 @@
+import torch
+import torch.nn as nn
 class params():
     def __init__(self):
         self.channel = 1
@@ -6,7 +8,7 @@ class params():
         self.hidden_size = 32
 
 class AlexNet(nn.Module):
-    def __init__(self, num_classes=1000, init_weights=False):   
+    def __init__(self, num_classes=2, init_weights=False):   
         super(AlexNet, self).__init__()
         self.features = nn.Sequential(  #打包
             nn.Conv2d(1, 1, kernel_size=4, stride=1, padding=2),  # input[3, 224, 224]  output[48, 55, 55] 自动舍去小数点后
@@ -27,7 +29,7 @@ class AlexNet(nn.Module):
             nn.Dropout(p=0.3),
             nn.Linear(128 * 6 * 6, 2048),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5),
+            nn.Dropout(p=0.2),
             nn.Linear(2048, 2048),
             nn.ReLU(inplace=True),
             nn.Linear(2048, num_classes),
@@ -38,6 +40,7 @@ class AlexNet(nn.Module):
     def forward(self, x):
         x = self.features(x)
         x = torch.flatten(x, start_dim=1) #展平   或者view()
+        print('x',x.shape)
         x = self.classifier(x)
         return x
 

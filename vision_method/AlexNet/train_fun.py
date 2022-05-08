@@ -1,15 +1,18 @@
+import sys 
+sys.path.append('/home/pc/matrad/leaf/factor/quant_demo/vision_method/AlexNet')
 import torch
 import torch.nn as nn
 from torchvision import transforms, datasets, utils
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.optim as optim
-sys.path.append('/home/pc/matrad/leaf/factor/quant_demo/vision_method/AlexNet')
 from alexNet import AlexNet
 from my_dataloader import MyDataSet
 import os
 import json
 import time
+from torch.utils.data import DataLoader
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 mydataset = MyDataSet(r'/home/pc/matrad/leaf/factor/daily_data/data_processed/greay_picture')
 vailddataset = MyDataSet(r'/home/pc/matrad/leaf/factor/daily_data/data_processed/grey_vaild')
@@ -71,6 +74,8 @@ def train_func():
                 (epoch + 1, running_loss / step, val_accurate))
 
     print('Finished Training')
+
+train_func()
 
 
 

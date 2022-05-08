@@ -1,3 +1,0 @@
-(1580858, 271)
-the best scores are: 0.7745448125668941
-the best params are: {'max_depth': 10, 'min_child_weight': 5}

@@ -227,19 +227,74 @@ class Account:
 
         self.result_settle()
 
+
+    def reg_BackTest(self):
+        """
+        :param buy_df: 可以买入的股票，输入为DataFrame
+        :param all_df: 所有股票的DataFrame
+        :param index_df: 指数对应时间的df
+        :return:
+        """
+        ###update
+        for name,group in self.df_all.groupby("date"):
+            #update
+            print(name,'\n##################################')
+            if self.my_storyrage.empty:
+                pass
+            else :
+                self.update(name)
+
+           #sale
+            code_list = self.my_storyrage['code'].values
+            
+            for code  in code_list:
+                length = len(group['lgb'].values)
+                if length <= 5:
+                    signal = np.sign(group['lgb'].values)
+                else:
+                    signal = np.zeros(length)
+                    signal[0:5] = 0
+  
+                group['lgb'] = signal
+                condition1 =  code not in group[group['lgb']==1]['code'].values
+
+                #condition2 & condition4
+                buy_price = self.my_storyrage[self.my_storyrage['code']==code]['buy_price'].values
+                now_price = self.my_storyrage[self.my_storyrage['code']==code]['now_price'].values
+                condition2 =  ((now_price/buy_price)-1) > self.stop_profit_rate 
+                condition4 = ((now_price/buy_price)-1) < self.stop_loss_rate
+
+                #condition3  
+                t1 = datetime.datetime.strptime(self.my_storyrage[self.my_storyrage['code']==code]['buy_date'].values.item(),"%Y-%m-%d") 
+                t2 = datetime.datetime.strptime(name,"%Y-%m-%d")#时间格式问题
+                span = datetime.timedelta(days=self.max_hold_period)
+                condition3 = (t2-t1>span)
+
+                if condition1 and (condition2 or condition3 or condition4):
+                    self.sell_stock(sell_date = name, stock_id = code , sell_price=group[group['code']==code]['close'].values, sell_num=100)
+
+
+            #buy
+            for code  in group[group['lgb']==1]['code'].values:
+                if  code not in self.my_storyrage['code'].values:
+                    order = group[group['code']==code]
+                    self.buy_stock(buy_date= name, stock_id= code, stock_price=group[group['code']==code]['close'].values, buy_num=100)
+
+        self.result_settle()
+
 def BackTest(# backtest_lable =  'label_month_15%',
     # STOP_PROFIT_RATE = 0.15,
-    # backtest_lable =  'label_week_7%',
+    backtest_lable =  'label_week_7%',
     # STOP_PROFIT_RATE = 0.07,
-    backtest_lable =  'label_week_15%',
+    # backtest_lable =  'label_week_15%',
     STOP_PROFIT_RATE = 0.15,
     # backtest_lable =  'label_month_%2',
     # STOP_PROFIT_RATE = 0.02,
     MONEY_INIT = 100000):
 
 # table_path = "/home/pc/matrad/leaf/factor/strategy/"+backtest_lable+"backtest_predite_select.csv"
-    price_path = '/home/pc/matrad/leaf/factor/strategy/'+backtest_lable+'backtest_predite.csv'
-    origin_path ='/home/pc/matrad/leaf/factor/daily_data/feature_dall_origin.csv'
+    price_path = '/home/pc/matrad/leaf/factor/strategy/'+backtest_lable+'datadite.csv'
+    origin_path ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/data_org_all.csv'
     data_oringin = pd.read_csv(origin_path)
     data_all = pd.read_csv(price_path)
     data_all = data_all[['open','close','date','code','lgb','true']]
@@ -257,10 +312,13 @@ def BackTest(# backtest_lable =  'label_month_15%',
     plt.figure()
     print('account ifo',np.array(account.info))
 
+    plt.figure(figsize=(24,8))
     fig, ax = plt.subplots(1,1)
     ax.plot(df_result['date'].values, account.market_value_all)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(base=10))
     # plt.plot(df_result['date'].values, account.market_value_all)
+    plt.xlabel('时间', fontsize=10)
+    plt.xticks(rotation=60, fontsize=10)
     plt.savefig('/home/pc/matrad/leaf/factor/strategy/metric_picture/'+backtest_lable+'backtest_metric.png')
     plt.show()
     print('胜率',account.win_rate)
