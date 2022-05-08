@@ -32,7 +32,7 @@ class Feature_engine():
         self.label_path = "/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/label_data/"
         self.file_list = os.listdir(self.row_path)  # [:50]
         self.file_list.sort(key=lambda x: int(x[3:-4]))
-        self.file_list = self.file_list[:200]
+        # self.file_list = self.file_list[:300]
         self.label = " "
 
     def price_adjust(self, data):
@@ -319,7 +319,7 @@ class Feature_engine():
             # if target == 'renew': 需要修改
             #     data = pd.concat([data_org,data.iloc[-1,:]],axis=0)
 
-            # data.to_csv(self.feature_path + "/feature_" + file, index=False)
+            data.to_pickle(self.feature_path + "/feature_" + file[:-3]+'pkl')
             data_all = pd.concat([data, data_all], axis=0)
             data_train = pd.concat([data.iloc[:-150, :], data_train], axis=0)
             data_test = pd.concat([data.iloc[-150:, :], data_test], axis=0)
@@ -355,7 +355,7 @@ class Feature_engine():
                 if i not in object_and_label:
                     data.drop( columns=[i], inplace=True )
   
-            # data.to_csv(self.label_path + "/label_" + file, index=False)
+            data.to_pickle(self.label_path + "/label_" + file[:-3]+'pkl')
             data_all = pd.concat([data, data_all], axis=0)
             data_train = pd.concat([data.iloc[:-150, :], data_train], axis=0)
             data_test = pd.concat([data.iloc[-150:, :], data_test], axis=0)
@@ -397,7 +397,7 @@ class Feature_engine():
             # if target == 'renew': #需要修改
             #     data = pd.concat([data_org,data.iloc[-1,:]],axis=0)
 
-            # data.to_csv(self.feature_path + "/feature_" + file, index=False)
+            data.to_pickle(self.feature_path + "/feature_" + file[:-3]+'pkl')
             data_all = pd.concat([data, data_all], axis=0)
             data_train = pd.concat([data.iloc[:-150, :], data_train], axis=0)
             data_test = pd.concat([data.iloc[-150:, :], data_test], axis=0)

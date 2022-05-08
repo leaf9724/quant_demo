@@ -40,7 +40,7 @@ class LSTM_Regression(nn.Module):
         s, b, h = x.shape  # x is output, size (seq_len, batch, hidden_size)
         x = x.view(s,b* h)
         x = self.fc(x)
-        x = self.sigmoid(x)
+        # x = self.sigmoid(x)
 
         return x
 
@@ -50,9 +50,8 @@ class LSTM_Regression(nn.Module):
 
 
 class Creat_LSTM_data():
-    def __init__(self, object_and_label=["date", "label_month_2%", "label_month_15%",
-                                   "label_week_7%", "label_week_15%", "code"]):
-        self.feature_num = 271
+    def __init__(self, object_and_label=[ "date", "label_month_2%", "label_month_15%", "label_week_7%", "label_week_15%", "code", "label_month_lagRet_reg", "label_week_lagRet_reg" ]):
+        self.feature_num = 309
         self.days_for_train = 1
         self.object_and_label = object_and_label
         self.date_and_code = pd.DataFrame()

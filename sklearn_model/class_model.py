@@ -73,7 +73,7 @@ class model(Feature_engine):
         super().__init__()
         self.label = label
         self.data_x_columns = []
-        self.object_and_label = [ "date", "label_month_2%", "label_month_15%", "label_week_7%", "label_week_15%", "code", "label_month_lagRet_reg", "label_week_lagRet_reg", ]
+        self.object_and_label = [ "date", "label_month_2%", "label_month_15%", "label_week_7%", "label_week_15%", "code", "label_month_lagRet_reg", "label_week_lagRet_reg" ]
         self.model_name = model_name
         self.backtest_columns = [ "date", "code", "open", "close", "high", "low",  "true", self.model_name ]
         
