@@ -107,10 +107,10 @@ class Reg_model(Feature_engine):
             parameters,
             lgb_train,
             valid_sets=[lgb_train, lgb_eval],
-            num_boost_round=800,  # 提升迭代的次数
-            early_stopping_rounds=100,
+            num_boost_round=500,  # 提升迭代的次数
+            early_stopping_rounds=10,
             evals_result=evals_result,
-            verbose_eval=50,
+            verbose_eval=10,
         )
         # from sklearn.externals import joblib
         # joblib.dump(model_lgb, '/home/pc/matrad/leaf/factor/quant_demo/sklearn_model/lgb_clf_model.pkl')
@@ -268,5 +268,5 @@ x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
 # print(x_train.shape)
 my_model.backtest_process()
 # my_model.predict_process()
-# lgb_tune_param(x_train,y_train)
+lgb_tune_param(x_train,y_train)
 

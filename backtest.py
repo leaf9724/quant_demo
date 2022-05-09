@@ -121,7 +121,8 @@ class Account:
         buy_price_storyrage = self.my_storyrage[self.my_storyrage['code']== stock_id]['buy_price'].values
         profit = tmp_money - service_change - buy_price_storyrage * sell_num
         tmp_lst_pnl = pd.DataFrame({'code':stock_id,'sale_date':sell_date,'sale_price':sell_price,'buy_price':buy_price_storyrage,'num':sell_num,'profit':profit,'cost':service_change}) 
-        self.pnl_sale = pd.concat([self.pnl_sale,tmp_lst_pnl])
+        self.pnl_sale = pd.concat([self.pnl_sale,tmp_lst_pnl],axis=0)
+        #'code','sale_date','sale_price','buy_price','num','profit','cost'
 
         self.my_storyrage =  self.my_storyrage[~(self.my_storyrage['code'] == stock_id)]
  
@@ -129,7 +130,7 @@ class Account:
         info = str(sell_date) + '  止损卖出' + ' (' + stock_id + ') ' \
         + str(int(sell_num)) + '股, 买入价格:'+str(buy_price_storyrage) + ', 卖出股价：' + str(sell_price) +',收入：' + str(round(tmp_money.item(), 2)) + ',手续费：' \
         + str(round(service_change.item(), 2)) + '，剩余现金：' + str(round(self.cash.item(), 2)) \
-        + '，最终收益：' + str(round(profit.item(), 2))
+        + '，最终收益：' + str(round(profit.item(), 2))+'收益率：'+ str(buy_price_storyrage/profit.item())
 
         print(info)
         self.info.append(info)
@@ -145,8 +146,11 @@ class Account:
         df_today = self.df_all[self.df_all['date']==day].copy()
         code_list = self.my_storyrage['code'].values
         for code in code_list:
-            price_in_all = df_today[df_today['code'] == code]['close'].values.item()
-            self.my_storyrage.loc[(self.my_storyrage['code'] == code), 'now_price'] = price_in_all
+            try:
+                price_in_all = df_today[df_today['code'] == code]['close'].values.item()
+                self.my_storyrage.loc[(self.my_storyrage['code'] == code), 'now_price'] = price_in_all
+            except:
+                continue
         # print('after update ',self.my_storyrage)
 
         stock_price = self.my_storyrage['now_price'].values
@@ -191,6 +195,7 @@ class Account:
         for name,group in self.df_all.groupby("date"):
             #update
             print(name,'\n##################################')
+            print(group,'\n##################################')
             if self.my_storyrage.empty:
                 pass
             else :
@@ -290,10 +295,11 @@ def BackTest(# backtest_lable =  'label_month_15%',
     STOP_PROFIT_RATE = 0.15,
     # backtest_lable =  'label_month_%2',
     # STOP_PROFIT_RATE = 0.02,
-    MONEY_INIT = 100000):
+    MONEY_INIT = 100000,
+    model_name = 'lgb'):
 
 # table_path = "/home/pc/matrad/leaf/factor/strategy/"+backtest_lable+"backtest_predite_select.csv"
-    price_path = '/home/pc/matrad/leaf/factor/strategy/'+backtest_lable+'datadite.csv'
+    price_path = '/home/pc/matrad/leaf/factor/strategy/'+model_name+'_'+backtest_lable+"predict_to_backtest.csv"
     origin_path ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data/data_org_all.csv'
     data_oringin = pd.read_csv(origin_path)
     data_all = pd.read_csv(price_path)

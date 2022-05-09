@@ -127,9 +127,9 @@ def model_test(file_list_test, threshold=0.5, evaul_plot=True):
     df_all.to_csv('/home/pc/matrad/leaf/factor/strategy/mosel_result/'+label+'lstm_back_pre.csv',index=False)
 
 
-fm = Feature_engine()
-fm.forward_feature()
-fm.forward_label()
+# fm = Feature_engine()
+# fm.forward_feature()
+# fm.forward_label()
 root ='/home/pc/matrad/leaf/factor/daily_data/data_processed/daily_data'
 file_list_ori = os.listdir(os.path.join(root,'feature_data'))
 file_list =[]

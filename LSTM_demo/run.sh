@@ -1,2 +1,2 @@
-python test_reg.py
-python test.py
+python test_reg.py | tee test_reg.txt
+python test.py | tee test.txt_class.txt

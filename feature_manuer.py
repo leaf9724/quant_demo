@@ -429,6 +429,7 @@ class Feature_engine():
 
     @timer
     def all_cat(self, labels=["label_month_lagRet_reg"], target="all"):
+        print(target)
         label = pd.read_pickle(self.processed_path + "label1_" + "d" + target + ".pkl")#,nrows=50000)
         label_select = label[['date', 'code', labels]]
         feature = pd.read_pickle(self.processed_path + "feature_1" + "d" + target + ".pkl")#,nrows=50000)

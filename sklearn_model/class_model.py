@@ -122,23 +122,22 @@ class model(Feature_engine):
         lgb_eval = lightgbm.Dataset(x_test, label=y_test, reference=lgb_train)
         parameters = {
             "task": "train",
-            "max_depth": 10,
-            "min_child_weight": 5,
+            "max_depth": 15,
             "boosting_type": "gbdt",
             "num_leaves": 20,  # 叶子节点数
             "n_estimators": 500,
             "objective": "binary",
-            "metric": {"auc", "binary_logloss", "average_precision"},
-            "learning_rate": 0.2,
+            "metric": "auc",
+            "learning_rate": 0.01,
             "feature_fraction": 0.8,  # 小于 1.0, LightGBM 将会在每次迭代中随机选择部分特征.
             "bagging_fraction": 1,  # 类似于 feature_fraction, 但是它将在不进行重采样的情况下随机选择部分数据
-            "bagging_freq": 10,  # bagging 的频率, 0 意味着禁用 bagging. k 意味着每 k 次迭代执行bagging
+            "bagging_freq": 5,  # bagging 的频率, 0 意味着禁用 bagging. k 意味着每 k 次迭代执行bagging
             "lambda_l1": 0.5,
             "lambda_l2": 0,
             "cat_smooth": 10,  # 用于分类特征,这可以降低噪声在分类特征中的影响, 尤其是对数据很少的类别
             "is_unbalance": True,  # 适合二分类。这里如果设置为True，评估结果降低3个点
             "verbose": 0,
-            # "class_weight": "balance",
+            "class_weight": "balance",
             "n_jobs": 9,
         }
 
@@ -147,8 +146,8 @@ class model(Feature_engine):
             parameters,
             lgb_train,
             valid_sets=[lgb_train, lgb_eval],
-            num_boost_round=5000,  # 提升迭代的次数
-            early_stopping_rounds=1000,
+            # num_boost_round=200,  # 提升迭代的次数
+            early_stopping_rounds=10,
             evals_result=evals_result,
             verbose_eval=10,
         )
@@ -164,7 +163,7 @@ class model(Feature_engine):
         lgb_eval = xgboost.DMatrix(x_test, label=y_test)
         parameters = {
                     'max_depth':15,
-                      'learning_rate':0.1,
+                      'learning_rate':0.01,
                       'n_estimators':2000,
                       'min_child_weight' :5,
                       'max_delta_step' :0,
@@ -262,7 +261,7 @@ class model(Feature_engine):
         df_pred[self.model_name] = y_label
         df_pred = df_pred[self.backtest_columns]
         df_select = df_pred[df_pred[self.model_name] == 1].copy()
-        df_select.to_csv( "/home/pc/matrad/leaf/factor/strategy/" + self.label + "predite_select.csv", index=False, )
+        df_select.to_csv( "/home/pc/matrad/leaf/factor/strategy/" + self.label + "predict_select.csv", index=False, )
 
     def model_backtest(self, gbm_model, threshold=0.5):
         data = self.all_cat(self.label,'test')
@@ -307,6 +306,7 @@ class model(Feature_engine):
         print(data[data[self.model_name] == 1])
         print(data[data["true"] == 1])
         data_Ylabel_equal_1 = data[data[self.model_name] == 1]
+        data_Ylabel_equal_1.to_csv( "/home/pc/matrad/leaf/factor/strategy/" + self.model_name + "_" + self.label + "predict_select_to_backtest.csv", index=False, )
         print("data_Ylabel_equal_1", data_Ylabel_equal_1.shape)
         print( 'accuracy in "lgb = 1" in backtest' + self.label + ": ", ( data_Ylabel_equal_1["true"].values == data_Ylabel_equal_1[self.model_name].values ).sum() / len(data_Ylabel_equal_1["true"].values), )
 
@@ -434,9 +434,9 @@ def lgb_tune_param(x_train, y_train):
     print("the best params are:", lgb_grid.best_params_)
 
 
-fm = Feature_engine()
-fm.forward_feature()
-fm.forward_label()
+# fm = Feature_engine()
+# fm.forward_feature()
+# fm.forward_label()
 # fm.feature_and_label_forward()
 
 my_model = model("label_week_7%",'lgb')
@@ -447,4 +447,4 @@ x_train, x_test, y_train, y_test = my_model.data_split(data_x, data_y)
 # print(x_train.shape)
 my_model.backtest_process()
 # my_model.predict_process()
-# lgb_tune_param(x_train,y_train)
+lgb_tune_param(x_train,y_train)
